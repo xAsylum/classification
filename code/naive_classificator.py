@@ -1,6 +1,8 @@
+
+from numpy.random import shuffle
 import numpy as np
 
-from utility import prepare_data, accuracy
+from utility import prepare_data, accuracy, categorize_and_split
 
 
 class NaiveClassificator:
@@ -13,8 +15,15 @@ class NaiveClassificator:
         self.log_probability = [0, 0]
 
     def select_fraction(self, frac):
-        length = int(len(self.train_set) * frac)
-        self.train = self.train_set[:length]
+        negative = [x for x in self.train_set if x[1] == 0]
+        positive = [x for x in self.train_set if x[1] == 1]
+        neg_split = int(len(negative) * frac)
+        pos_split = int(len(positive) * frac)
+        train_set = ([x for x in negative[:neg_split]]
+                     + [x for x in positive[:pos_split]])
+        shuffle(train_set)
+        self.train = train_set
+
 
     def estimate(self):
         self.parameters = dict()
@@ -46,21 +55,27 @@ class NaiveClassificator:
             self.log_probability[c] = np.log(self.probability[c])
 
 
-    def predict_one(self, X):
+    def predict_one(self, X, log = True):
         prob_zero = 1
         prob_one = 1
-        # log_prob_zero = 0
-        # log_prob_one = 0
+        log_prob_zero = 0
+        log_prob_one = 0
         for i in range(len(X)):
             prob_zero *= self.parameters[(0, int(X[i]) - 1, i)]
             prob_one *= self.parameters[(1, int(X[i]) - 1, i)]
-            #log_prob_zero += self.log_parameters[(0, X[i], i)]
-            #log_prob_one += self.log_parameters[(1, X[i], i)]
+            log_prob_zero += self.log_parameters[(0, int(X[i]) - 1, i)]
+            log_prob_one += self.log_parameters[(1, int(X[i]) - 1, i)]
 
         prob_zero *= self.probability[0]
         prob_one *= self.probability[1]
-        return prob_one / (prob_zero + prob_one)
-        pass
+        log_prob_zero += self.log_probability[0]
+        log_prob_one += self.log_probability[1]
+
+
+
+        if not log:
+            return prob_one / (prob_zero + prob_one)
+        return np.exp(log_prob_one - np.log(np.exp(log_prob_one) + np.exp(log_prob_zero)))
 
     def decide_one(self, X):
         return self.predict_one(X) >= 0.3

@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.random import shuffle
 
 from utility import prepare_data, sigmoid, accuracy
 
@@ -12,8 +13,14 @@ class LogisticRegression:
         self.learning_curve = []
 
     def select_fraction(self, frac):
-        length = int(len(self.train_set) * frac)
-        self.train = self.train_set[:length]
+        negative = [x for x in self.train_set if x[1] == 0]
+        positive = [x for x in self.train_set if x[1] == 1]
+        neg_split = int(len(negative) * frac)
+        pos_split = int(len(positive) * frac)
+        train_set = ([x for x in negative[:neg_split]]
+                     + [x for x in positive[:pos_split]])
+        shuffle(train_set)
+        self.train = train_set
 
 
     def hypothesis(self, x):
@@ -27,7 +34,7 @@ class LogisticRegression:
             np.mean([cost_one(planning_matrix[i], targets[i]) for i in range(len(targets))]))
                 + regularization_coef * self.theta.T.dot(self.theta))
     def predict(self, X):
-        return self.hypothesis(X) >= 0.35
+        return self.hypothesis(X) >= 0.5
 
     def fit(self, regularization_coef = 0.0):
         features = np.array([x[0] for x in self.train])
@@ -41,7 +48,7 @@ class LogisticRegression:
             errors = predictions - targets
             gradient = (planning_matrix.T @ errors) / len(targets)
             self.theta -= self.learning_rate * gradient + regularization_coef * self.theta
-        print(self.cost(planning_matrix, targets, regularization_coef))
+        #print(self.cost(planning_matrix, targets, regularization_coef))
 
     def check_accuracy(self):
         def checker(X):

@@ -1,6 +1,7 @@
-from random import shuffle
-import numpy as np
 
+from numpy.random import shuffle
+import numpy as np
+import matplotlib.pyplot as plt
 
 def parse_data(name):
     data = []
@@ -37,6 +38,9 @@ def prepare_data(name, frac):
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
+def how_good(precision, sensitivity):
+    return (2 * precision * sensitivity) / (precision + sensitivity)
+
 def accuracy(predict, X, Y):
     Y_pred = np.array([predict(x) for x in X])
     assert Y_pred.shape == Y.shape
@@ -62,3 +66,16 @@ def accuracy(predict, X, Y):
     sensitivity = true_positive / (true_positive + false_negative)
     specificity = (true_negative) / (true_negative + false_positive)
     return accuracy, precision, sensitivity, specificity
+
+def plot_data(X, Y, label, xlabel, ylabel):
+    plt.figure(figsize=(12, 5))
+    plt.plot(X, Y, marker='o', color='tab:blue')
+    plt.title(label)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.xscale('log')
+    plt.grid(True, which="both", linestyle='--', linewidth=0.5)
+    plt.xticks(X, [f"{x:.3f}" for x in X])
+    plt.ylim((0.3, 1))
+    plt.tight_layout()
+    plt.show()
