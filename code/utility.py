@@ -60,5 +60,5 @@ def accuracy(predict, X, Y):
     accuracy = (true_positive + true_negative ) / total
     precision = true_positive / (true_positive + false_positive)
     sensitivity = true_positive / (true_positive + false_negative)
-    swo = (true_negative) / (true_negative + false_positive)
-    return accuracy, precision, sensitivity, swo
+    specificity = (true_negative) / (true_negative + false_positive)
+    return accuracy, precision, sensitivity, specificity
