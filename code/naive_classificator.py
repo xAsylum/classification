@@ -55,7 +55,7 @@ class NaiveClassificator:
             self.log_probability[c] = np.log(self.probability[c])
 
 
-    def predict_one(self, X, log = True):
+    def predict_one(self, X, log = False):
         prob_zero = 1
         prob_one = 1
         log_prob_zero = 0
@@ -78,7 +78,7 @@ class NaiveClassificator:
         return np.exp(log_prob_one - np.log(np.exp(log_prob_one) + np.exp(log_prob_zero)))
 
     def decide_one(self, X):
-        return self.predict_one(X) >= 0.3
+        return self.predict_one(X) >= 0.5
 
     def check_accuracy(self):
         def checker(x):

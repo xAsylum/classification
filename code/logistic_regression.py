@@ -6,6 +6,7 @@ from utility import prepare_data, sigmoid, accuracy
 class LogisticRegression:
     def __init__(self, file, frac = 0.67, lr = 0.01, n = 1000):
         self.train_set, self.test = prepare_data(file, frac)
+        self.data = self.train_set + self.test
         self.train = self.train_set
         self.theta = np.zeros(10)
         self.learning_rate = lr
@@ -48,7 +49,8 @@ class LogisticRegression:
             errors = predictions - targets
             gradient = (planning_matrix.T @ errors) / len(targets)
             self.theta -= self.learning_rate * gradient + regularization_coef * self.theta
-        #print(self.cost(planning_matrix, targets, regularization_coef))
+            if _ % 100 == 0:
+                self.learning_curve.append((_,self.cost(planning_matrix, targets, regularization_coef)))
 
     def check_accuracy(self):
         def checker(X):
